@@ -1,0 +1,34 @@
+/* Custom font */
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+/* Custom colors to match the image precisely */
+:root {
+    --dark-bg: #232228;
+    --panel-bg: #312f3a;
+    --input-bg: #3f3d49;
+    --main-purple: #5e53a9;
+    --main-purple-hover: #4d438a;
+    --link-purple: #9d8eee;
+}
+
+.dark-bg {
+    background-color: var(--dark-bg);
+}
+
+/* Canvas for 3D scene */
+#bg-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    display: block;
+}
+
+.text-shadow {
+    text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
