@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const appleBtnSignup = document.getElementById('apple-btn-signup');
     const loginForm = document.getElementById('login-form');
 
+    // Switch between login/signup views
     loginLink.addEventListener('click', (e) => {
         e.preventDefault();
         signupView.classList.add('hidden');
@@ -27,33 +28,96 @@ document.addEventListener('DOMContentLoaded', () => {
         signupView.classList.remove('hidden');
     });
 
-    togglePassword.addEventListener('click', function (e) {
+    // Toggle password visibility
+    togglePassword.addEventListener('click', () => {
         const type = signupPassword.getAttribute('type') === 'password' ? 'text' : 'password';
         signupPassword.setAttribute('type', type);
         eyeOpen.classList.toggle('hidden');
         eyeClosed.classList.toggle('hidden');
     });
 
-    signupForm.addEventListener('submit', (event) => {
-        event.preventDefault();
-        const firstName = document.getElementById('first-name').value;
-        const lastName = document.getElementById('last-name').value;
-        const email = document.getElementById('signup-email').value;
-        const terms = document.getElementById('terms').checked;
-        if (!terms) {
-            console.error("Terms and Conditions must be accepted.");
-            return;
-        }
-        console.log('Creating account with:', { firstName, lastName, email });
-    });
+    // Signup form validation
+    // Signup form validation
+signupForm.addEventListener('submit', (event) => {
+    event.preventDefault();
 
-    googleBtnSignup.addEventListener('click', () => console.log('Initiating Google registration...'));
-    appleBtnSignup.addEventListener('click', () => console.log('Initiating Apple registration...'));
+    const firstName = document.getElementById('first-name').value.trim();
+    const lastName = document.getElementById('last-name').value.trim();
+    const email = document.getElementById('signup-email').value.trim();
+    const password = document.getElementById('signup-password').value;
+    const terms = document.getElementById('terms').checked;
+
+    // Remove existing error messages
+    document.querySelectorAll('.error-message').forEach(el => el.remove());
+
+    const gmailRegex = /^[^\s@]+@[^\s@]+\.[^\s@.]+(\.[^\s@.]+)*$/;
+    // At least 8 characters, only allowed chars
+    const allowedSpecials = "!@#$%^&*()-_=+[]{};:'\",.<>?/`~|";
+    const allowedChars = "a-zA-Z0-9" + allowedSpecials.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+    const passwordRegex = new RegExp("^[" + allowedChars + "]{8,}$");
+    // At least one letter
+    const hasLetter = /[a-zA-Z]/;
+    // At least one number
+    const hasNumber = /[0-9]/;
+    // At least one special character
+    const hasSpecial = /[!@#$%^&*()\-\_=+\[\]{};:'",.<>?/`~|]/;
+
+    let isValid = true;
+
+    if (!gmailRegex.test(email)) {
+        showError('signup-email', 'Please enter a valid Gmail address.');
+        isValid = false;
+    }
+
+    // Password validation
+    if (
+        !passwordRegex.test(password) ||
+        !hasLetter.test(password) ||
+        !hasNumber.test(password) ||
+        !hasSpecial.test(password)
+    ) {
+        showError(
+            'signup-password',
+            'Password must be at least 8 characters, contain letters, numbers, and at least one special character.'
+        );
+        isValid = false;
+    }
+
+    if (!terms) {
+        showError('terms', 'You must agree to the Terms & Conditions.');
+        isValid = false;
+    }
+
+    if (!isValid) return;
+
+    console.log('Creating account with:', { firstName, lastName, email });
+    alert('Account created successfully!');
+    // Redirect to dashboard
+    window.location.href = 'dashboard.html';
+});
+
+
+    // Show inline error below input
+    function showError(elementId, message) {
+        const input = document.getElementById(elementId);
+        const error = document.createElement('p');
+        error.className = 'text-sm text-red-500 mt-1 error-message';
+        error.textContent = message;
+        input.parentElement.appendChild(error);
+    }
+
+    // Login form (can also add validation here if needed)
     loginForm.addEventListener('submit', (event) => {
         event.preventDefault();
-        const email = document.getElementById('login-email').value;
+        const email = document.getElementById('login-email').value.trim();
+        const password = document.getElementById('login-password').value;
         console.log('Logging in with email:', email);
+        alert('Login submitted');
     });
+
+    // Social login buttons (optional actions)
+    googleBtnSignup.addEventListener('click', () => console.log('Initiating Google registration...'));
+    appleBtnSignup.addEventListener('click', () => console.log('Initiating Apple registration...'));
 });
 
 // --- 3D Animation Logic ---
@@ -67,11 +131,12 @@ function init3D() {
     camera.position.z = 5;
 
     renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
-    renderer.setClearColor(0x232228, 1); // Match dark background
+    renderer.setClearColor(0x232228, 1); // Match background
 
     const particleCount = 5000;
     const positions = new Float32Array(particleCount * 3);
     const colors = new Float32Array(particleCount * 3);
+
     const color1 = new THREE.Color(getComputedStyle(document.documentElement).getPropertyValue('--main-purple'));
     const color2 = new THREE.Color(getComputedStyle(document.documentElement).getPropertyValue('--link-purple'));
 
@@ -80,7 +145,7 @@ function init3D() {
         positions[i3] = (Math.random() - 0.5) * 10;
         positions[i3 + 1] = (Math.random() - 0.5) * 10;
         positions[i3 + 2] = (Math.random() - 0.5) * 10;
-        
+
         const mixedColor = color1.clone().lerp(color2, Math.random());
         colors[i3] = mixedColor.r;
         colors[i3 + 1] = mixedColor.g;
@@ -129,7 +194,6 @@ function animate() {
 
     particles.rotation.y = time * 0.5;
 
-    // Mouse interaction
     camera.position.x += (mouse.x * 2 - camera.position.x) * 0.02;
     camera.position.y += (-mouse.y * 2 - camera.position.y) * 0.02;
     camera.lookAt(scene.position);
@@ -139,4 +203,3 @@ function animate() {
 
 init3D();
 animate();
-
